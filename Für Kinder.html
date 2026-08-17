@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unsere Mathe-Lernzeit</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f7f3ea;
+    color: #2f2f2f;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .header {
+    height: 15vh;
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fffaf2;
+    border-bottom: 3px solid #e6d5bd;
+    position: relative;
+  }
+  .header h1 {
+    margin: 0;
+    font-size: clamp(28px, 3.2vw, 52px);
+    color: #c96d32;
+    letter-spacing: .2px;
+  }
+  .fox { position: absolute; left: 2vw; font-size: clamp(34px, 4vw, 62px); }
+  .sub { position: absolute; right: 2vw; font-size: clamp(14px, 1.4vw, 22px); color: #756b61; }
+
+  .board {
+    height: 85vh;
+    padding: 2.2vh 2vw 2vh;
+    display: grid;
+    grid-template-rows: 1fr 0.9fr;
+    gap: 1.7vh;
+  }
+
+  .zones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5vw;
+    min-height: 0;
+  }
+  .zone {
+    border-radius: 24px;
+    padding: 1.2vh 1vw;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    transition: transform .15s, box-shadow .15s, background .15s;
+  }
+  .zone.dragover {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 5px rgba(201,109,50,.18);
+  }
+  .wanted {
+    background: #edf7ed;
+    border: 4px solid #82b982;
+  }
+  .unwanted {
+    background: #fff0ed;
+    border: 4px solid #d58a7b;
+  }
+  .zone-title {
+    text-align: center;
+    font-size: clamp(22px, 2.3vw, 38px);
+    font-weight: 800;
+    margin: .2vh 0 1vh;
+  }
+  .wanted .zone-title { color: #438743; }
+  .unwanted .zone-title { color: #b44f43; }
+  .zone-hint {
+    text-align: center;
+    font-size: clamp(12px, 1.15vw, 18px);
+    color: #716960;
+    margin-bottom: .8vh;
+  }
+  .drop-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: .5vh .4vw;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: .65vw;
+  }
+
+  .cards {
+    background: #fffaf2;
+    border: 3px dashed #d7c6b0;
+    border-radius: 22px;
+    padding: 1vh 1vw;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    gap: .7vw;
+  }
+  .cards-title {
+    width: 100%;
+    text-align: center;
+    font-size: clamp(16px, 1.45vw, 24px);
+    font-weight: 700;
+    color: #756b61;
+    margin-bottom: .3vh;
+  }
+
+  .card {
+    user-select: none;
+    touch-action: none;
+    -webkit-user-select: none;
+    cursor: grab;
+    background: white;
+    border: 2px solid #d8d0c6;
+    border-radius: 16px;
+    padding: 10px 14px;
+    min-height: 58px;
+    max-width: 430px;
+    flex: 1 1 260px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(14px, 1.25vw, 20px);
+    line-height: 1.25;
+    box-shadow: 0 3px 8px rgba(70,50,30,.08);
+  }
+  .card:active { cursor: grabbing; }
+  .card.dragging {
+    opacity: .55;
+    transform: rotate(1deg);
+  }
+  .card.correct { border-color: #64a664; background: #f3fbf3; }
+  .card.wrong { border-color: #c86b5e; background: #fff4f2; }
+  .emoji { font-size: 1.25em; flex: 0 0 auto; }
+
+  .footer {
+    position: fixed;
+    right: 1.3vw;
+    bottom: 1.1vh;
+    display: flex;
+    gap: 8px;
+  }
+  button {
+    border: 0;
+    border-radius: 12px;
+    padding: 9px 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #d9864b;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,.12);
+  }
+  button.secondary { background: #81776e; }
+  button:hover { filter: brightness(1.05); }
+
+  .gold {
+    position: absolute;
+    left: 50%;
+    top: calc(50% + clamp(28px, 2.0vw, 38px));
+    transform: translateX(-50%);
+    background: #fff7d9;
+    border: 2px solid #e1bd55;
+    border-radius: 14px;
+    padding: 5px 16px;
+    font-size: clamp(11px, 1.0vw, 16px);
+    font-weight: 700;
+    color: #6c5a24;
+    z-index: 5;
+    box-shadow: 0 3px 8px rgba(70,50,30,.08);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .board { height: auto; grid-template-rows: auto auto; }
+    .zones { grid-template-columns: 1fr; }
+    .zone { min-height: 330px; }
+    .cards { min-height: 250px; }
+    .header-center { width: 78%; }
+    .gold-top {
+      white-space: normal;
+      width: 100%;
+      line-height: 1.2;
+    }
+    .footer { position: static; justify-content: center; margin: 10px; }
+  }
+
+  .review-screen {
+    display: none;
+    -webkit-overflow-scrolling: touch;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: #f7f3ea;
+    padding: 2.2vh 2vw 2vh;
+    overflow: auto;
+  }
+  .review-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2vw;
+    min-height: 13vh;
+    position: relative;
+    text-align: center;
+  }
+  .review-header h2 {
+    margin: 0;
+    color: #c96d32;
+    font-size: clamp(28px, 3vw, 48px);
+  }
+  .review-header p {
+    margin: .5vh 0 0;
+    color: #756b61;
+    font-size: clamp(15px, 1.35vw, 22px);
+  }
+  .review-fox { font-size: clamp(36px, 4vw, 60px); }
+  .back-btn {
+    position: absolute;
+    right: 0;
+    top: 1vh;
+    background: #81776e;
+  }
+  .review-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5vw;
+    min-height: 68vh;
+  }
+  .review-column {
+    border-radius: 24px;
+    padding: 1.3vh 1vw;
+    border: 4px solid;
+  }
+  .review-column.wanted {
+    background: #edf7ed;
+    border-color: #82b982;
+  }
+  .review-column.unwanted {
+    background: #fff0ed;
+    border-color: #d58a7b;
+  }
+  .review-title {
+    text-align: center;
+    font-size: clamp(23px, 2.3vw, 38px);
+    font-weight: 800;
+    margin-bottom: 1vh;
+  }
+  .review-column.wanted .review-title { color: #438743; }
+  .review-column.unwanted .review-title { color: #b44f43; }
+  .review-list {
+    display: flex;
+    flex-direction: column;
+    gap: .75vh;
+    overflow: auto;
+    max-height: 63vh;
+    padding: .3vh .4vw;
+  }
+  .review-card {
+    background: white;
+    border: 2px solid #d8d0c6;
+    border-radius: 15px;
+    min-height: 58px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(15px, 1.35vw, 22px);
+    line-height: 1.25;
+    box-shadow: 0 3px 8px rgba(70,50,30,.07);
+  }
+  .review-check {
+    margin-left: auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #58a35a;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+    font-weight: 900;
+    opacity: 0;
+    transform: scale(.3);
+    flex: 0 0 auto;
+  }
+  .review-card.show-check .review-check {
+    animation: checkIn .45s ease-out forwards;
+  }
+  @keyframes checkIn {
+    0% { opacity: 0; transform: scale(.3) rotate(-20deg); }
+    70% { opacity: 1; transform: scale(1.18) rotate(4deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  .gold-review {
+    width: fit-content;
+    max-width: 90%;
+    margin: 1.2vh auto 0;
+    background: #fff7d9;
+    border: 2px solid #e1bd55;
+    border-radius: 15px;
+    padding: 9px 20px;
+    font-size: clamp(14px, 1.25vw, 21px);
+    font-weight: 800;
+    color: #6c5a24;
+    text-align: center;
+  }
+  @media (max-width: 900px) {
+    .review-columns { grid-template-columns: 1fr; }
+    .review-list { max-height: none; }
+    .back-btn { position: static; }
+  }
+
+
+  .review-card.is-correct { border-color: #62a862; background: #f4fbf4; }
+  .review-card.is-wrong { border-color: #c96b5e; background: #fff5f3; }
+  .review-cross {
+    margin-left: auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #c85f52;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+    font-weight: 900;
+    opacity: 0;
+    transform: scale(.3);
+    flex: 0 0 auto;
+  }
+  .review-card.show-cross .review-cross {
+    animation: checkIn .45s ease-out forwards;
+  }
+
+
+  .header-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7vh;
+    width: 72%;
+    text-align: center;
+  }
+  .gold-top {
+    background: #fff7d9;
+    border: 2px solid #e1bd55;
+    border-radius: 14px;
+    padding: 5px 16px;
+    font-size: clamp(11px, 1.0vw, 16px);
+    font-weight: 700;
+    color: #6c5a24;
+    box-shadow: 0 3px 8px rgba(70,50,30,.08);
+    white-space: nowrap;
+  }
+
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="fox">🦊</div>
+  <div class="header-center">
+    <h1>Unsere Mathe-Lernzeit</h1>
+    <div class="gold-top">⭐ Unsere goldene Regel: Ich behandle andere so, wie ich behandelt werden möchte.</div>
+  </div>
+  <div class="sub">Was wollen wir? Was wollen wir nicht?</div>
+</header>
+
+<main class="board">
+  <section class="zones">
+    <div class="zone wanted" data-zone="wanted">
+      <div class="zone-title">✅ DAS WOLLEN WIR</div>
+      <div class="zone-hint">So soll unsere Lernzeit sein.</div>
+      <div class="drop-area" id="wanted"></div>
+    </div>
+
+    <div class="zone unwanted" data-zone="unwanted">
+      <div class="zone-title">❌ DAS WOLLEN WIR NICHT</div>
+      <div class="zone-hint">So soll unsere Lernzeit nicht sein.</div>
+      <div class="drop-area" id="unwanted"></div>
+    </div>
+  </section>
+
+  <section class="cards" id="cards">
+    <div class="cards-title">💭 Ordnet die Karten gemeinsam zu.</div>
+  </section>
+</main>
+
+
+<section class="review-screen" id="reviewScreen">
+  <div class="review-header">
+    <div class="review-fox">🦊</div>
+    <div>
+      <h2>Jetzt schauen wir gemeinsam!</h2>
+      <p>Passt die Karte hierhin? Lasst uns gemeinsam überlegen.</p>
+    </div>
+    <button class="back-btn" onclick="closeReview()">← Zurück</button>
+  </div>
+
+  <div class="review-columns">
+    <div class="review-column wanted">
+      <div class="review-title">✅ DAS WOLLEN WIR</div>
+      <div class="review-list" id="reviewWanted"></div>
+    </div>
+    <div class="review-column unwanted">
+      <div class="review-title">❌ DAS WOLLEN WIR NICHT</div>
+      <div class="review-list" id="reviewUnwanted"></div>
+    </div>
+  </div>
+
+  <div class="gold-review">⭐ Unsere goldene Regel: Ich behandle andere so, wie ich behandelt werden möchte.</div>
+</section>
+
+
+<div class="footer">
+  <button class="secondary" onclick="resetCards()">↩ Zurücksetzen</button>
+  <button onclick="checkCards()">✓ Fertig</button>
+</div>
+
+<script>
+const cardData = [
+  {emoji:"🤫", text:"Ich arbeite leise.", zone:"wanted"},
+  {emoji:"🗣️", text:"Ich rede laut mit meinem Freund.", zone:"unwanted"},
+  {emoji:"📚", text:"Ich gehe sorgfältig mit den Materialien um.", zone:"wanted"},
+  {emoji:"🏃", text:"Ich renne durch den Raum.", zone:"unwanted"},
+  {emoji:"🧠", text:"Ich frage zuerst drei Kinder, bevor ich einen Erwachsenen um Hilfe bitte.", zone:"wanted"},
+  {emoji:"🙋", text:"Ich frage sofort einen Erwachsenen, wenn ich eine Frage habe.", zone:"unwanted"},
+  {emoji:"🔄", text:"Ich räume die Materialien zurück.", zone:"wanted"},
+  {emoji:"🚶", text:"Ich wechsle meinen Platz nicht, ohne vorher zu fragen.", zone:"wanted"},
+  {emoji:"🤝", text:"Ich helfe einem anderen Kind, wenn es mich um Hilfe bittet.", zone:"wanted"},
+  {emoji:"😡", text:"Ich ärgere mich über einen Fehler.", zone:"unwanted"},
+  {emoji:"✏️", text:"Ich arbeite an meinen Aufgaben.", zone:"wanted"},
+  {emoji:"🎲", text:"Ich nehme einfach irgendein Spiel.", zone:"unwanted"},
+  {emoji:"🧹", text:"Ich hinterlasse meinen Platz ordentlich.", zone:"wanted"}
+];
+
+const cardsContainer = document.getElementById("cards");
+const wanted = document.getElementById("wanted");
+const unwanted = document.getElementById("unwanted");
+
+function createCard(item, index) {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.draggable = true;
+  el.dataset.zone = item.zone;
+  el.dataset.expectedZone = item.zone;
+  el.dataset.index = index;
+  el.innerHTML = `<span class="emoji">${item.emoji}</span><span>${item.text}</span>`;
+
+  el.addEventListener("dragstart", e => {
+    e.dataTransfer.setData("text/plain", index);
+    el.classList.add("dragging");
+  });
+  el.addEventListener("dragend", () => el.classList.remove("dragging"));
+
+  // Touch / pointer drag support for interactive boards
+  let startX, startY, ghost, currentTarget;
+  el.addEventListener("pointerdown", e => {
+    if (e.pointerType === "mouse") return;
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    ghost = el.cloneNode(true);
+    ghost.style.position = "fixed";
+    ghost.style.width = el.getBoundingClientRect().width + "px";
+    ghost.style.zIndex = 9999;
+    ghost.style.pointerEvents = "none";
+    ghost.style.opacity = ".9";
+    ghost.style.transform = "rotate(2deg)";
+    document.body.appendChild(ghost);
+    moveGhost(e);
+  });
+  el.addEventListener("pointermove", e => {
+    if (!ghost) return;
+    moveGhost(e);
+    const target = document.elementFromPoint(e.clientX, e.clientY)?.closest(".zone");
+    document.querySelectorAll(".zone").forEach(z => z.classList.remove("dragover"));
+    if (target) { target.classList.add("dragover"); currentTarget = target; }
+  });
+  el.addEventListener("pointerup", e => {
+    if (!ghost) return;
+    if (currentTarget) {
+      const dest = currentTarget.dataset.zone === "wanted" ? wanted : unwanted;
+      dest.appendChild(el);
+    }
+    cleanupPointer();
+  });
+  function moveGhost(e) {
+    ghost.style.left = (e.clientX + 10) + "px";
+    ghost.style.top = (e.clientY + 10) + "px";
+  }
+  function cleanupPointer() {
+    if (ghost) ghost.remove();
+    ghost = null; currentTarget = null;
+    document.querySelectorAll(".zone").forEach(z => z.classList.remove("dragover"));
+  }
+  return el;
+}
+
+function loadCards() {
+  cardsContainer.querySelectorAll(".card").forEach(c => c.remove());
+  wanted.innerHTML = "";
+  unwanted.innerHTML = "";
+  const shuffled = [...cardData].sort(() => Math.random() - .5);
+  shuffled.forEach((item, i) => cardsContainer.appendChild(createCard(item, i)));
+}
+
+document.querySelectorAll(".zone").forEach(zone => {
+  zone.addEventListener("dragover", e => {
+    e.preventDefault();
+    zone.classList.add("dragover");
+  });
+  zone.addEventListener("dragleave", () => zone.classList.remove("dragover"));
+  zone.addEventListener("drop", e => {
+    e.preventDefault();
+    zone.classList.remove("dragover");
+    const idx = Number(e.dataTransfer.getData("text/plain"));
+    const card = [...document.querySelectorAll(".card")].find(c => Number(c.dataset.index) === idx);
+    if (card) zone.querySelector(".drop-area").appendChild(card);
+  });
+});
+
+function resetCards() {
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("correct","wrong"));
+  loadCards();
+}
+
+function checkCards() {
+  const reviewScreen = document.getElementById("reviewScreen");
+  const reviewWanted = document.getElementById("reviewWanted");
+  const reviewUnwanted = document.getElementById("reviewUnwanted");
+
+  // Student/tablet version: do NOT evaluate or reveal any answers.
+  reviewWanted.innerHTML = "";
+  reviewUnwanted.innerHTML = "";
+
+  const done = document.createElement("div");
+  done.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: #f7f3ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    padding: 30px;
+  `;
+  done.innerHTML = `
+    <div style="font-size:clamp(55px,8vw,100px)">🦊</div>
+    <div style="font-size:clamp(30px,4vw,58px);font-weight:800;color:#c96d32">Fertig!</div>
+    <div style="font-size:clamp(18px,2vw,30px);color:#756b61;max-width:800px">
+      Besprecht eure Entscheidungen gleich gemeinsam in der Klasse.
+    </div>
+  `;
+  document.body.appendChild(done);
+}
+function closeReview() {
+  document.getElementById("reviewScreen").style.display = "none";
+  document.querySelector(".board").style.visibility = "visible";
+  document.querySelector(".header").style.visibility = "visible";
+  document.querySelector(".gold").style.visibility = "visible";
+  document.querySelector(".footer").style.visibility = "visible";
+}
+
+loadCards();
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mathe-Lernzeit</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(135deg,#f3f7fa,#e8eef3);
+  color:#26343c;
+}
+.page{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:28px;
+}
+.card{
+  width:min(900px,94vw);background:#fff;border-radius:30px;
+  padding:44px 42px 48px;text-align:center;
+  box-shadow:0 14px 40px rgba(0,0,0,.12);
+}
+.fox{font-size:76px;line-height:1;margin-bottom:8px}
+h1{font-size:clamp(38px,5vw,58px);margin:0 0 8px;font-weight:900}
+.subtitle{font-size:22px;color:#687780;margin-bottom:34px}
+.options{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:20px;
+  max-width:720px;margin:auto;
+}
+.option{
+  text-decoration:none;color:#26343c;
+  border:0;border-radius:22px;padding:30px 18px;
+  min-height:145px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:30px;font-weight:900;
+  box-shadow:0 6px 0 rgba(0,0,0,.12);
+  transition:.12s;
+}
+.option:hover{transform:translateY(-2px)}
+.option:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.math{background:#dcecf7}
+.rules{background:#f5e1b7}
+.icon{font-size:46px;margin-bottom:8px}
+@media(max-width:650px){
+ .options{grid-template-columns:1fr}
+ .card{padding:34px 22px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <main class="card">
+    <div class="fox">🦊</div>
+    <h1>Mathe-Lernzeit</h1>
+    <div class="subtitle">Was möchtest du üben?</div>
+
+    <div class="options">
+      <a class="option math" href="Einmaleins_Uebung_mit_Test.html">
+        <div class="icon">✖️</div>
+        1 × 1
+      </a>
+
+      <a class="option rules" href="alte-startseite.html">
+        <div class="icon">📋</div>
+        Klassenregeln
+      </a>
+    </div>
+  </main>
+</div>
+</body>
+</html>

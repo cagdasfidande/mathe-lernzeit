@@ -2,79 +2,107 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mathe-Lernzeit</title>
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;min-height:100vh;
+  margin:0;
+  min-height:100vh;
   font-family:Arial,Helvetica,sans-serif;
-  background:linear-gradient(135deg,#f3f7fa,#e8eef3);
+  background:#edf3f7;
   color:#26343c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:30px;
 }
-.page{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  padding:28px;
+.container{
+  width:min(900px,94vw);
+  background:#fff;
+  border-radius:30px;
+  padding:45px 50px 55px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.10);
 }
-.card{
-  width:min(900px,94vw);background:#fff;border-radius:30px;
-  padding:44px 42px 48px;text-align:center;
-  box-shadow:0 14px 40px rgba(0,0,0,.12);
+.fox{
+  font-size:70px;
+  line-height:1;
+  margin-bottom:12px;
 }
-.fox{font-size:76px;line-height:1;margin-bottom:8px}
-h1{font-size:clamp(38px,5vw,58px);margin:0 0 8px;font-weight:900}
-.subtitle{font-size:22px;color:#687780;margin-bottom:34px}
-.options{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:20px;
-  max-width:720px;margin:auto;
+h1{
+  margin:0 0 12px;
+  font-size:clamp(42px,6vw,64px);
+  font-weight:900;
 }
-.option{
-  text-decoration:none;color:#26343c;
-  border:0;border-radius:22px;padding:30px 18px;
-  min-height:145px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-size:30px;font-weight:900;
+.subtitle{
+  font-size:23px;
+  margin-bottom:35px;
+  color:#65747c;
+}
+.buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:25px;
+}
+.button{
+  text-decoration:none;
+  color:#26343c;
+  min-height:190px;
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  font-weight:900;
   box-shadow:0 6px 0 rgba(0,0,0,.12);
-  transition:.12s;
+  transition:transform .12s;
 }
-.option:hover{transform:translateY(-2px)}
-.option:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
-.math{background:#dcecf7}
-.rules{background:#f5e1b7}
-.icon{font-size:46px;margin-bottom:8px}
+.button:hover{transform:translateY(-2px)}
+.button:active{
+  transform:translateY(4px);
+  box-shadow:0 2px 0 rgba(0,0,0,.12);
+}
+.math{background:#d9ebf7}
+.rules{background:#f5dfad}
+.icon{
+  font-size:58px;
+  margin-bottom:14px;
+}
 @media(max-width:650px){
- .options{grid-template-columns:1fr}
- .card{padding:34px 22px}
+  body{padding:15px}
+  .container{padding:35px 20px 40px}
+  .buttons{grid-template-columns:1fr}
+  .button{min-height:155px}
 }
 </style>
 </head>
 <body>
-<body>
-  <div class="page">
-    <main class="card">
 
-      <div class="fox">🦊</div>
+<main class="container">
 
-      <h1>Mathe-Lernzeit</h1>
+  <div class="fox">🦊</div>
 
-      <div class="subtitle">Was möchtest du üben?</div>
+  <h1>Mathe-Lernzeit</h1>
 
-      <div class="options">
+  <div class="subtitle">Was möchtest du üben?</div>
 
-        <a class="option math" href="1x1einmalens.html">
-          <div class="icon">✖️</div>
-          1 × 1
-        </a>
+  <div class="buttons">
 
-        <a class="option rules" href="Klassenregeln.html">
-          <div class="icon">📋</div>
-          Klassenregeln
-        </a>
+    <a class="button math" href="1x1einmalens.html">
+      <div class="icon">✖️</div>
+      1 × 1
+    </a>
 
-      </div>
+    <a class="button rules" href="Klassenregeln.html">
+      <div class="icon">📋</div>
+      Klassenregeln
+    </a>
 
-    </main>
   </div>
-</body>
+
+</main>
+
 </body>
 </html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kernaufgaben-Übung</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; overflow:hidden;
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(135deg,#f3f7fa,#e8eef3);
+  color:#24343d;
+}
+.screen{display:none; min-height:100vh; align-items:center; justify-content:center; padding:28px}
+.screen.active{display:flex}
+.home{
+  width:min(1000px,94vw);
+  background:#fff; border-radius:28px; padding:38px;
+  box-shadow:0 12px 35px rgba(0,0,0,.12);
+  text-align:center;
+  position:relative;
+}
+h1{font-size:clamp(34px,4vw,52px); margin:0 0 10px; font-weight:800}
+.subtitle{font-size:22px;color:#66757d;margin-bottom:30px}
+.tableGrid{
+  display:grid; grid-template-columns:repeat(5,1fr);
+  gap:16px; max-width:760px; margin:auto;
+}
+.tableBtn{
+  border:0; border-radius:20px; padding:25px 10px;
+  font-size:32px; font-weight:800; cursor:pointer;
+  background:#dcecf7; color:#24343d;
+  box-shadow:0 6px 0 rgba(0,0,0,.12);
+  transition:.12s;
+}
+.tableBtn:hover{transform:translateY(-2px)}
+.tableBtn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.raceBtn{
+  border:0;border-radius:20px;padding:25px 10px;
+  font-size:32px;font-weight:800;cursor:pointer;
+  background:#f1d36a;color:#24343d;
+  box-shadow:0 6px 0 rgba(0,0,0,.12);
+  transition:.12s;
+  width:100%;max-width:760px;
+  margin:18px auto 32px;
+}
+.raceBtn:hover{transform:translateY(-2px)}
+.raceBtn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.practice{
+  width:min(1000px,94vw);
+  display:flex; flex-direction:column; align-items:center; gap:18px;
+}
+.topbar{
+  width:100%; background:#fff; border-radius:18px;
+  padding:12px 18px; display:flex; align-items:center;
+  justify-content:space-between; box-shadow:0 5px 18px rgba(0,0,0,.09);
+}
+.badge{
+  background:#edf2f5; border-radius:11px;
+  padding:8px 13px; font-weight:800; font-size:18px;
+}
+.card{
+  width:min(760px,88vw); height:min(440px,62vh);
+  background:#fff; border-radius:32px;
+  box-shadow:0 14px 40px rgba(0,0,0,.14);
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column; cursor:pointer;
+  user-select:none;
+  transition:.15s;
+}
+.card:hover{transform:scale(1.01)}
+.task{font-size:clamp(55px,9vw,105px);font-weight:900;letter-spacing:2px}
+.answer{
+  font-size:clamp(50px,8vw,95px);font-weight:900;
+  margin-top:18px; opacity:0; transform:scale(.7);
+  transition:.2s;
+}
+.card.revealed .answer{opacity:1;transform:scale(1)}
+.hint{font-size:20px;color:#718089;margin-top:15px}
+.controls{display:flex;gap:10px}
+.smallBtn{
+  border:0;border-radius:12px;padding:11px 18px;
+  font-size:17px;font-weight:700;background:#e8eef2;cursor:pointer;
+}
+.done{
+  text-align:center;background:#fff;border-radius:26px;padding:35px 45px;
+  box-shadow:0 12px 35px rgba(0,0,0,.13);
+}
+.done h2{font-size:38px;margin:0 0 12px}
+.done p{font-size:21px;color:#66757d}
+
+.testScreen{
+  width:min(1000px,94vw);
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+}
+.testCard{
+  width:min(760px,90vw);min-height:500px;
+  background:#fff;border-radius:32px;
+  box-shadow:0 14px 40px rgba(0,0,0,.14);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:35px;
+}
+.testTask{
+  font-size:clamp(58px,9vw,105px);
+  font-weight:900;letter-spacing:2px;
+}
+.testOptions{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:18px;width:min(700px,88vw);margin-top:38px;
+}
+.testOption{
+  border:0;border-radius:18px;
+  min-height:100px;padding:18px 10px;
+  background:#e8eef2;
+  font-size:clamp(32px,4vw,46px);
+  font-weight:900;cursor:pointer;
+  box-shadow:0 5px 0 rgba(0,0,0,.10);
+}
+.testOption:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.10)}
+.testFeedback{font-size:21px;font-weight:800;min-height:28px;margin-top:18px}
+.testDone{font-size:30px;font-weight:900;text-align:center;line-height:1.35}
+.testDone small{display:block;font-size:22px;color:#66757d;margin-top:10px}
+
+.homeBack{
+  position:absolute;left:20px;top:20px;
+  border:0;border-radius:12px;padding:10px 15px;
+  font-size:16px;font-weight:700;background:#e8eef2;
+  color:#24343d;cursor:pointer;text-decoration:none;
+}
+.homeBack:hover{filter:brightness(.97)}
+
+@media(max-width:700px){
+  .tableGrid{grid-template-columns:repeat(3,1fr)}
+  .tableBtn{font-size:25px;padding:20px 8px}
+}
+</style>
+</head>
+<body>
+
+<section id="home" class="screen active">
+  <div class="home">
+    <a class="homeBack" href="index.html">🏠 Startseite</a>
+    <h1>Kernaufgaben-Übung</h1>
+    <div class="subtitle">Welche Reihe möchtest du üben?</div>
+
+    <button class="raceBtn" onclick="startTest()">🏁</button>
+
+    <div class="tableGrid">
+      <button class="tableBtn" onclick="startTable(1)">1</button>
+      <button class="tableBtn" onclick="startTable(2)">2</button>
+      <button class="tableBtn" onclick="startTable(3)">3</button>
+      <button class="tableBtn" onclick="startTable(4)">4</button>
+      <button class="tableBtn" onclick="startTable(5)">5</button>
+      <button class="tableBtn" onclick="startTable(6)">6</button>
+      <button class="tableBtn" onclick="startTable(7)">7</button>
+      <button class="tableBtn" onclick="startTable(8)">8</button>
+      <button class="tableBtn" onclick="startTable(9)">9</button>
+      <button class="tableBtn" onclick="startTable(10)">10</button>
+    </div>
+  </div>
+</section>
+
+<section id="practiceScreen" class="screen">
+  <div class="practice">
+    <div class="topbar">
+      <div class="badge" id="tableBadge"></div>
+      <div class="badge" id="counter"></div>
+    </div>
+
+    <div id="card" class="card" onclick="cardClick()">
+      <div id="task" class="task"></div>
+      <div id="answer" class="answer"></div>
+      <div id="hint" class="hint">Karte anklicken</div>
+    </div>
+
+    <div class="controls">
+      <button class="smallBtn" onclick="backHome()">← Zurück</button>
+      <button class="smallBtn" onclick="newOrder()">🔀 Neue Reihenfolge</button>
+    </div>
+  </div>
+</section>
+
+<section id="testScreen" class="screen">
+  <div class="testScreen">
+    <div class="topbar">
+      <div class="badge">🏁</div>
+      <div class="badge" id="testTimer">00:00</div>
+      <div class="badge" id="testCounter">1 / 46</div>
+    </div>
+
+    <div id="testCard" class="testCard">
+      <div id="testTask" class="testTask"></div>
+      <div id="testOptions" class="testOptions"></div>
+      <div id="testFeedback" class="testFeedback"></div>
+    </div>
+
+    <div class="controls">
+      <button class="smallBtn" onclick="backFromTest()">← Zurück</button>
+    </div>
+  </div>
+</section>
+
+<script>
+let testQuestions=[];
+let testPosition=0;
+let testScore=0;
+let testLocked=false;
+let testStartTime=0;
+let testTimerInterval=null;
+
+let table=2;
+let facts=[];
+let position=0;
+let revealed=false;
+
+function shuffle(array){
+  return [...array].sort(()=>Math.random()-0.5);
+}
+
+/* Genau wie auf dem Arbeitsblatt:
+   1×n, 2×n, 5×n, n×n und 10×n.
+   Doppelte Aufgaben bei 1, 2, 5 und 10 werden nur einmal gezeigt. */
+function getKernaufgaben(n){
+  const pairs=[
+    [1,n],
+    [2,n],
+    [5,n],
+    [n,n],
+    [10,n]
+  ];
+  const seen=new Set();
+  return pairs.filter(([a,b])=>{
+    const key=a+"×"+b;
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function startTable(n){
+  table=n;
+  position=0;
+  facts=shuffle(getKernaufgaben(n));
+
+  document.getElementById("home").classList.remove("active");
+  document.getElementById("practiceScreen").classList.add("active");
+  showCard();
+}
+
+function showCard(){
+  revealed=false;
+  const fact=facts[position];
+
+  document.getElementById("tableBadge").textContent=
+    table+"er-Reihe · Kernaufgaben";
+  document.getElementById("counter").textContent=
+    (position+1)+" / "+facts.length;
+  document.getElementById("task").textContent=
+    fact[0]+" × "+fact[1];
+  document.getElementById("answer").textContent=
+    fact[0]*fact[1];
+  document.getElementById("hint").textContent="Karte anklicken";
+  document.getElementById("card").classList.remove("revealed");
+}
+
+function cardClick(){
+  if(!revealed){
+    revealed=true;
+    document.getElementById("card").classList.add("revealed");
+    document.getElementById("hint").textContent=
+      "Noch einmal klicken → nächste Aufgabe";
+  }else{
+    position++;
+    if(position>=facts.length){
+      showDone();
+    }else{
+      showCard();
+    }
+  }
+}
+
+function showDone(){
+  document.getElementById("card").innerHTML=
+    '<div class="done"><h2>🎉 Geschafft!</h2><p>Du hast die Kernaufgaben der '+table+'er-Reihe geübt.</p></div>';
+  document.getElementById("counter").textContent=
+    facts.length+" / "+facts.length;
+}
+
+function newOrder(){
+  facts=shuffle(facts);
+  position=0;
+  const card=document.getElementById("card");
+  card.innerHTML=
+    '<div id="task" class="task"></div>'+
+    '<div id="answer" class="answer"></div>'+
+    '<div id="hint" class="hint">Karte anklicken</div>';
+  showCard();
+}
+
+function backHome(){
+  document.getElementById("practiceScreen").classList.remove("active");
+  document.getElementById("home").classList.add("active");
+  const card=document.getElementById("card");
+  card.innerHTML=
+    '<div id="task" class="task"></div>'+
+    '<div id="answer" class="answer"></div>'+
+    '<div id="hint" class="hint">Karte anklicken</div>';
+}
+
+/* Test: alle unterschiedlichen Kernaufgaben aus dem 1×1 bis 10 */
+function buildTestQuestions(){
+  const all=[];
+  for(let n=1;n<=10;n++){
+    getKernaufgaben(n).forEach(([a,b])=>{
+      all.push({a:a,b:b,answer:a*b});
+    });
+  }
+  return all;
+}
+
+function startTest(){
+  testQuestions=shuffle(buildTestQuestions());
+  testPosition=0;
+  testScore=0;
+  testLocked=false;
+  testStartTime=Date.now();
+
+  clearInterval(testTimerInterval);
+  testTimerInterval=setInterval(updateTestTimer,1000);
+
+  document.getElementById("home").classList.remove("active");
+  document.getElementById("practiceScreen").classList.remove("active");
+  document.getElementById("testScreen").classList.add("active");
+  showTestQuestion();
+}
+
+function formatTime(seconds){
+  const m=String(Math.floor(seconds/60)).padStart(2,"0");
+  const s=String(seconds%60).padStart(2,"0");
+  return m+":"+s;
+}
+
+function updateTestTimer(){
+  const seconds=Math.floor((Date.now()-testStartTime)/1000);
+  document.getElementById("testTimer").textContent=formatTime(seconds);
+}
+
+function showTestQuestion(){
+  testLocked=false;
+  const q=testQuestions[testPosition];
+  const total=testQuestions.length;
+
+  document.getElementById("testCounter").textContent=
+    (testPosition+1)+" / "+total;
+  document.getElementById("testTask").textContent=
+    q.a+" × "+q.b;
+  document.getElementById("testFeedback").textContent="";
+
+  const options=new Set([q.answer]);
+
+  while(options.size<3){
+    let candidate=q.answer + Math.floor(Math.random()*13)-6;
+    if(candidate>0 && candidate<=100 && candidate!==q.answer){
+      options.add(candidate);
+    }
+  }
+
+  const box=document.getElementById("testOptions");
+  box.innerHTML="";
+
+  shuffle([...options]).forEach(value=>{
+    const btn=document.createElement("button");
+    btn.className="testOption";
+    btn.textContent=value;
+    btn.onclick=()=>answerTest(value,btn);
+    box.appendChild(btn);
+  });
+}
+
+function answerTest(value,btn){
+  if(testLocked)return;
+
+  const q=testQuestions[testPosition];
+
+  if(value===q.answer){
+    testLocked=true;
+    testScore++;
+    btn.style.background="#bfe6c6";
+    document.getElementById("testFeedback").textContent="✓ Richtig!";
+
+    setTimeout(()=>{
+      testPosition++;
+      if(testPosition>=testQuestions.length) finishTest();
+      else showTestQuestion();
+    },550);
+  }else{
+    btn.style.background="#f1c1c1";
+    document.getElementById("testFeedback").textContent=
+      "Noch einmal überlegen …";
+    setTimeout(()=>btn.style.background="",450);
+  }
+}
+
+function finishTest(){
+  clearInterval(testTimerInterval);
+
+  const elapsed=Math.floor((Date.now()-testStartTime)/1000);
+  const total=testQuestions.length;
+
+  document.getElementById("testCounter").textContent=
+    total+" / "+total;
+  document.getElementById("testTimer").textContent=
+    formatTime(elapsed);
+  document.getElementById("testOptions").innerHTML="";
+  document.getElementById("testTask").innerHTML=
+    '<div class="testDone">🏁 Geschafft!'+
+    '<small>'+testScore+' von '+total+' richtig</small>'+
+    '<small>Benötigte Zeit: '+formatTime(elapsed)+'</small></div>';
+  document.getElementById("testFeedback").textContent="";
+}
+
+function backFromTest(){
+  clearInterval(testTimerInterval);
+  document.getElementById("testScreen").classList.remove("active");
+  document.getElementById("home").classList.add("active");
+}
+</script>
+
+</body>
+</html>

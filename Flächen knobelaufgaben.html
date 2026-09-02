@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finde die Fehler – Flächenformen</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:#fbfbf8;color:#303638;display:flex;justify-content:center;align-items:center}
+.page{width:min(1200px,96vw);background:white;border-radius:24px;padding:28px 34px 30px;box-shadow:0 8px 28px rgba(0,0,0,.08)}
+h1{text-align:center;font-size:34px;margin:0 0 10px}
+.subtitle{text-align:center;font-size:20px;margin:0 0 25px}
+.menu{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.menu button{height:130px;border:3px solid #dce1d8;border-radius:22px;background:#fff;font-size:42px;font-weight:800;cursor:pointer}
+.menu button:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.1)}
+.game{display:none}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.back{border:0;border-radius:12px;background:#eeeeeb;padding:10px 16px;font-size:17px;font-weight:700;cursor:pointer}
+.level{font-size:22px;font-weight:800}
+.instruction{text-align:center;font-size:19px;margin:8px 0 18px}
+.rows{display:flex;flex-direction:column;gap:16px}
+.row{border:2px solid #e0e3df;border-radius:18px;padding:12px 8px;display:flex;justify-content:center;gap:10px;background:#fff}
+.slot{width:65px;height:62px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed transparent;flex:0 0 auto}
+.slot.over{border-color:#6f9bc3;background:#f1f6fb}
+.shape{width:43px;height:43px;display:block;cursor:grab;user-select:none;touch-action:none}
+.palette{margin:18px auto 12px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.palette-title{font-weight:700;font-size:18px}
+.shape-card{border:2px solid #dce1d8;border-radius:14px;background:#fff;width:68px;height:68px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none}
+.shape-card.selected{outline:3px solid #6f9bc3}
+.actions{text-align:center;margin-top:8px}
+.actions button{border:0;border-radius:12px;padding:10px 18px;font-size:17px;font-weight:700;cursor:pointer;margin:0 4px}
+.check{background:#e3f0df;color:#416b38}.reset{background:#eeeeeb;color:#505658}
+.message{min-height:28px;text-align:center;font-size:18px;font-weight:700;margin-top:10px}
+.correct{border-color:#75a86d!important;background:#f0f7ee!important}
+.wrong{border-color:#c87979!important;background:#fff2f2!important}
+@media(max-width:800px){.menu{grid-template-columns:repeat(2,1fr)}.row{overflow-x:auto;justify-content:flex-start}.slot{width:58px}}
+@media(max-width:500px){.page{padding:20px 10px}.menu button{height:100px}.row{gap:5px}.slot{width:52px}}
+</style>
+</head>
+<body>
+<main class="page">
+
+<section id="home">
+  <h1>Finde die Fehler.</h1>
+  <p class="subtitle">Wähle eine Aufgabe.</p>
+  <div class="menu">
+    <button type="button" data-level="0">1</button>
+    <button type="button" data-level="1">2</button>
+    <button type="button" data-level="2">3</button>
+    <button type="button" data-level="3">4</button>
+  </div>
+</section>
+
+<section id="game" class="game">
+  <div class="top">
+    <button class="back" id="back" type="button">← Zurück</button>
+    <div class="level" id="levelTitle">Aufgabe 1</div>
+    <div></div>
+  </div>
+  <p class="instruction">Finde den Fehler und ziehe die richtige Flächenform darauf.</p>
+  <div class="rows" id="rows"></div>
+
+  <div class="palette">
+    <span class="palette-title">Formen:</span>
+    <div class="shape-card" data-type="circle" draggable="true" aria-label="Kreis"></div>
+    <div class="shape-card" data-type="square" draggable="true" aria-label="Quadrat"></div>
+    <div class="shape-card" data-type="triangle" draggable="true" aria-label="Dreieck"></div>
+  </div>
+
+  <div class="actions">
+    <button class="check" id="check" type="button">Lösung prüfen</button>
+    <button class="reset" id="reset" type="button">Zurücksetzen</button>
+  </div>
+  <div class="message" id="message" aria-live="polite"></div>
+</section>
+</main>
+
+<script>
+const original=[
+["circle","square","circle","square","circle","square","circle","square","triangle","square","circle","square"],
+["triangle","circle","circle","triangle","circle","square","triangle","circle","circle","triangle","circle","circle"],
+["circle","circle","square","square","circle","circle","square","square","circle","square","square","square"],
+["circle","square","triangle","circle","square","triangle","circle","square","triangle","circle","circle","triangle"]
+];
+
+const solutions=[
+["circle","square","circle","square","circle","square","circle","square","circle","square","circle","square"],
+["triangle","circle","circle","triangle","circle","circle","triangle","circle","circle","triangle","circle","circle"],
+["circle","circle","square","square","circle","circle","square","square","circle","circle","square","square"],
+["circle","square","triangle","circle","square","triangle","circle","square","triangle","circle","square","triangle"]
+];
+
+let current=0;
+let data=clone(original);
+let selectedType=null;
+
+const home=document.getElementById("home");
+const game=document.getElementById("game");
+const rows=document.getElementById("rows");
+const message=document.getElementById("message");
+const levelTitle=document.getElementById("levelTitle");
+
+function clone(x){return x.map(r=>r.slice())}
+
+function svg(type){
+ if(type==="circle")return '<svg class="shape" viewBox="0 0 50 50"><circle cx="25" cy="25" r="18" fill="white" stroke="black" stroke-width="2.5"/></svg>';
+ if(type==="square")return '<svg class="shape" viewBox="0 0 50 50"><rect x="7" y="7" width="36" height="36" fill="white" stroke="black" stroke-width="2.5"/></svg>';
+ return '<svg class="shape" viewBox="0 0 50 50"><polygon points="25,6 44,42 6,42" fill="white" stroke="black" stroke-width="2.5"/></svg>';
+}
+
+function renderPalette(){
+ document.querySelectorAll(".shape-card").forEach(card=>{
+   card.innerHTML=svg(card.dataset.type);
+   card.classList.toggle("selected",selectedType===card.dataset.type);
+   card.addEventListener("dragstart",e=>e.dataTransfer.setData("text/plain",card.dataset.type));
+   card.onclick=()=>{selectedType=card.dataset.type;renderPalette()};
+ });
+}
+
+function render(){
+ rows.innerHTML="";
+ const row=data[current];
+ const rowEl=document.createElement("div");
+ rowEl.className="row";
+
+ row.forEach((type,c)=>{
+   const slot=document.createElement("div");
+   slot.className="slot";
+   slot.dataset.r=0;
+   slot.dataset.c=c;
+   slot.innerHTML=svg(type);
+
+   slot.addEventListener("dragover",e=>{
+     e.preventDefault();
+     slot.classList.add("over");
+   });
+   slot.addEventListener("dragleave",()=>{
+     slot.classList.remove("over");
+   });
+   slot.addEventListener("drop",e=>{
+     e.preventDefault();
+     slot.classList.remove("over");
+     const t=e.dataTransfer.getData("text/plain");
+     if(t){
+       data[current][c]=t;
+       message.textContent="";
+       render();
+     }
+   });
+   slot.onclick=()=>{
+     if(selectedType){
+       data[current][c]=selectedType;
+       selectedType=null;
+       message.textContent="";
+       render();
+     }
+   };
+   rowEl.appendChild(slot);
+ });
+
+ rows.appendChild(rowEl);
+ renderPalette();
+}
+function openLevel(n){
+ current=n; data=clone(original); selectedType=null; message.textContent="";
+ levelTitle.textContent="Aufgabe "+(n+1);
+ home.style.display="none"; game.style.display="block"; render();
+}
+
+document.querySelectorAll(".menu button").forEach(b=>b.addEventListener("click",()=>openLevel(+b.dataset.level)));
+
+document.getElementById("back").onclick=()=>{
+ game.style.display="none";home.style.display="block";
+};
+
+document.getElementById("reset").onclick=()=>{
+ data[current]=original[current].slice();
+ selectedType=null;
+ message.textContent="";
+ render();
+};
+
+document.getElementById("check").onclick=()=>{
+ const slots=document.querySelectorAll(".slot");
+ let errors=0;
+ slots.forEach((slot,c)=>{
+   const ok=data[current][c]===solutions[current][c];
+   slot.classList.toggle("correct",ok);
+   slot.classList.toggle("wrong",!ok);
+   if(!ok)errors++;
+ });
+ if(errors===0)message.textContent="🎉 Super! Alle Fehler sind gefunden.";
+ else message.textContent="Fast! Schau noch einmal genau hin.";
+};
+
+renderPalette();
+</script>
+</body>
+</html>

@@ -48,14 +48,63 @@ h1{font-size:clamp(34px,4vw,52px); margin:0 0 10px; font-weight:800}
   background:#edf2f5; border-radius:11px;
   padding:8px 13px; font-weight:800; font-size:18px;
 }
+.practiceArea{
+  display:flex; align-items:center; justify-content:center;
+  gap:22px; width:100%;
+}
+.raceSide{
+  width:min(150px,14vw);
+  display:flex; align-items:center; justify-content:center;
+}
+.raceSideBtn{
+  width:100%; min-height:130px;
+  border:0; border-radius:24px;
+  background:#f1d36a; color:#24343d;
+  font-size:52px; font-weight:900;
+  cursor:pointer;
+  box-shadow:0 7px 0 rgba(0,0,0,.12);
+  transition:.12s;
+}
+.raceSideBtn:hover{transform:translateY(-2px)}
+.raceSideBtn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.raceSideLabel{
+  display:block; font-size:16px; margin-top:7px;
+  font-weight:800;
+}
 .card{
-  width:min(760px,88vw); height:min(440px,62vh);
+  width:min(760px,68vw); height:min(440px,62vh);
   background:#fff; border-radius:32px;
   box-shadow:0 14px 40px rgba(0,0,0,.14);
   display:flex; align-items:center; justify-content:center;
   flex-direction:column; cursor:pointer;
   user-select:none;
   transition:.15s;
+}
+.divisionCard{
+  width:min(330px,28vw); height:min(300px,42vh);
+  background:#fff; border-radius:26px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column;
+  padding:22px;
+}
+.divisionTitle{
+  font-size:18px; font-weight:800; color:#66757d;
+  margin-bottom:18px;
+}
+.divisionTasks{
+  font-size:clamp(24px,3vw,36px);
+  font-weight:900; line-height:1.65;
+  text-align:center;
+  opacity:0; transform:scale(.85);
+  transition:.2s;
+}
+.divisionCard.revealed .divisionTasks{
+  opacity:1; transform:scale(1);
+}
+.divisionHint{
+  font-size:16px; color:#718089; margin-top:14px;
+  text-align:center;
 }
 .card:hover{transform:scale(1.01)}
 .task{font-size:clamp(55px,9vw,105px);font-weight:900;letter-spacing:2px}
@@ -126,6 +175,24 @@ h1{font-size:clamp(34px,4vw,52px); margin:0 0 10px; font-weight:800}
  .tableGrid{grid-template-columns:repeat(3,1fr)}
  .tableBtn{font-size:25px;padding:20px 8px}
 }
+
+@media(max-width:900px){
+  .practiceArea{gap:14px}
+  .card{width:min(650px,65vw)}
+  .divisionCard{width:min(280px,30vw)}
+}
+@media(max-width:700px){
+  .practiceArea{flex-direction:column;gap:14px}
+  .raceSide{width:min(760px,88vw)}
+  .raceSideBtn{min-height:85px;font-size:42px}
+  .raceSideLabel{display:inline;margin-left:8px}
+
+  .card{width:min(760px,88vw);height:min(390px,55vh)}
+  .divisionCard{width:min(760px,88vw);height:auto;min-height:180px}
+  .divisionTitle{margin-bottom:8px}
+  .divisionTasks{font-size:28px}
+  .divisionHint{margin-top:6px}
+}
 </style>
 </head>
 <body>
@@ -135,7 +202,6 @@ h1{font-size:clamp(34px,4vw,52px); margin:0 0 10px; font-weight:800}
     <a class="homeBack" href="index.html">🏠 Startseite</a>
     <h1>Einmaleins-Übung</h1>
     <div class="subtitle">Welche Reihe möchtest du üben?</div>
-    <button class="raceBtn" onclick="startTest()">🏁</button>
     <div class="tableGrid">
       <button class="tableBtn" onclick="startTable(1)">1</button>
       <button class="tableBtn" onclick="startTable(2)">2</button>
@@ -158,10 +224,25 @@ h1{font-size:clamp(34px,4vw,52px); margin:0 0 10px; font-weight:800}
       <div class="badge" id="counter"></div>
     </div>
 
-    <div id="card" class="card" onclick="cardClick()">
-      <div id="task" class="task"></div>
-      <div id="answer" class="answer"></div>
-      <div id="hint" class="hint">Karte anklicken</div>
+    <div class="practiceArea">
+      <div class="raceSide">
+        <button class="raceSideBtn" onclick="startTableRace()" title="Rennen starten">
+          🏁
+          <span class="raceSideLabel">Rennen</span>
+        </button>
+      </div>
+
+      <div id="card" class="card" onclick="cardClick()">
+        <div id="task" class="task"></div>
+        <div id="answer" class="answer"></div>
+        <div id="hint" class="hint">Karte anklicken</div>
+      </div>
+
+      <div id="divisionCard" class="divisionCard">
+        <div class="divisionTitle">↔ Umkehraufgaben</div>
+        <div id="divisionTasks" class="divisionTasks"></div>
+        <div id="divisionHint" class="divisionHint">Erst die Karte anklicken</div>
+      </div>
     </div>
 
     <div class="controls">
@@ -176,8 +257,9 @@ h1{font-size:clamp(34px,4vw,52px); margin:0 0 10px; font-weight:800}
   <div class="testScreen">
     <div class="topbar">
       <div class="badge">🏁</div>
+      <div class="badge" id="testTableBadge">Reihe</div>
       <div class="badge" id="testTimer">00:00</div>
-      <div class="badge" id="testCounter">1 / 100</div>
+      <div class="badge" id="testCounter">1 / 10</div>
     </div>
 
     <div id="testCard" class="testCard">
@@ -197,29 +279,37 @@ h1{font-size:clamp(34px,4vw,52px); margin:0 0 10px; font-weight:800}
 let testQuestions=[];
 let testPosition=0;
 let testScore=0;
+let testMistakes=0;
 let testLocked=false;
 let testStartTime=0;
 let testTimerInterval=null;
 
-function startTest(){
+function startTableRace(){
   testQuestions=[];
-  for(let a=1;a<=10;a++){
-    for(let b=1;b<=10;b++){
-      testQuestions.push({a:a,b:b,answer:a*b});
-    }
+  for(let b=1;b<=10;b++){
+    testQuestions.push({a:table,b:b,answer:table*b});
   }
+
   testQuestions=shuffle(testQuestions);
   testPosition=0;
   testScore=0;
+  testMistakes=0;
   testLocked=false;
   testStartTime=Date.now();
+
   clearInterval(testTimerInterval);
   testTimerInterval=setInterval(updateTestTimer,1000);
 
   document.getElementById("home").classList.remove("active");
   document.getElementById("practiceScreen").classList.remove("active");
   document.getElementById("testScreen").classList.add("active");
+
+  document.getElementById("testTableBadge").textContent=table+"er-Reihe";
   showTestQuestion();
+}
+
+function startTest(){
+  startTableRace();
 }
 
 function formatTime(seconds){
@@ -236,18 +326,23 @@ function updateTestTimer(){
 function showTestQuestion(){
   testLocked=false;
   const q=testQuestions[testPosition];
-  document.getElementById("testCounter").textContent=(testPosition+1)+" / 100";
+
+  document.getElementById("testCounter").textContent=
+    (testPosition+1)+" / "+testQuestions.length;
   document.getElementById("testTask").textContent=q.a+" × "+q.b;
   document.getElementById("testFeedback").textContent="";
 
   const options=new Set([q.answer]);
   while(options.size<3){
     let candidate=q.answer + Math.floor(Math.random()*13)-6;
-    if(candidate>0 && candidate<=100 && candidate!==q.answer) options.add(candidate);
+    if(candidate>0 && candidate<=100 && candidate!==q.answer){
+      options.add(candidate);
+    }
   }
 
   const box=document.getElementById("testOptions");
   box.innerHTML="";
+
   shuffle([...options]).forEach(value=>{
     const btn=document.createElement("button");
     btn.className="testOption";
@@ -259,6 +354,7 @@ function showTestQuestion(){
 
 function answerTest(value,btn){
   if(testLocked)return;
+
   const q=testQuestions[testPosition];
 
   if(value===q.answer){
@@ -266,35 +362,68 @@ function answerTest(value,btn){
     testScore++;
     btn.style.background="#bfe6c6";
     document.getElementById("testFeedback").textContent="✓ Richtig!";
+
     setTimeout(()=>{
       testPosition++;
-      if(testPosition>=100) finishTest();
-      else showTestQuestion();
+
+      if(testPosition>=testQuestions.length){
+        finishTest();
+      }else{
+        showTestQuestion();
+      }
     },550);
+
   }else{
+    testMistakes++;
     btn.style.background="#f1c1c1";
-    document.getElementById("testFeedback").textContent="Noch einmal überlegen …";
-    setTimeout(()=>btn.style.background="",450);
+    document.getElementById("testFeedback").textContent=
+      "Noch einmal überlegen …";
+
+    setTimeout(()=>{
+      btn.style.background="";
+    },450);
   }
 }
 
 function finishTest(){
   clearInterval(testTimerInterval);
+
   const elapsed=Math.floor((Date.now()-testStartTime)/1000);
-  document.getElementById("testCounter").textContent="100 / 100";
+  const total=testQuestions.length;
+
+  document.getElementById("testCounter").textContent=
+    total+" / "+total;
   document.getElementById("testTimer").textContent=formatTime(elapsed);
   document.getElementById("testOptions").innerHTML="";
+
   document.getElementById("testTask").innerHTML=
-    '<div class="testDone">🏁 Geschafft!<small>'+testScore+' von 100 richtig</small><small>Benötigte Zeit: '+formatTime(elapsed)+'</small></div>';
+    '<div class="testDone">'+
+      '🏁 Geschafft!'+
+      '<small>'+testScore+' von '+total+' richtig</small>'+
+      '<small>'+testMistakes+' Fehler gemacht</small>'+
+      '<small>Benötigte Zeit: '+formatTime(elapsed)+'</small>'+
+    '</div>';
+
   document.getElementById("testFeedback").textContent="";
-  document.getElementById("testCard").innerHTML +=
-    '<div class="controls" style="margin-top:24px"><button class="smallBtn" onclick="backFromTest()">← Zurück</button></div>';
 }
 
 function backFromTest(){
   clearInterval(testTimerInterval);
   document.getElementById("testScreen").classList.remove("active");
-  document.getElementById("home").classList.add("active");
+  document.getElementById("home").classList.remove("active");
+  document.getElementById("practiceScreen").classList.add("active");
+
+  // Zurück führt zur gerade geübten Reihe.
+  const card=document.getElementById("card");
+  card.innerHTML=
+    '<div id="task" class="task"></div>'+
+    '<div id="answer" class="answer"></div>'+
+    '<div id="hint" class="hint">Karte anklicken</div>';
+
+  position=0;
+  revealed=false;
+  facts=shuffle([...Array(10)].map((_,i)=>i+1));
+  showCard();
 }
 
 let table=2;
@@ -318,19 +447,29 @@ function startTable(n){
 function showCard(){
   revealed=false;
   const factor=facts[position];
+  const answer=table*factor;
+
   document.getElementById("tableBadge").textContent=table+"er-Reihe";
   document.getElementById("counter").textContent=(position+1)+" / 10";
   document.getElementById("task").textContent=table+" × "+factor;
-  document.getElementById("answer").textContent=table*factor;
+  document.getElementById("answer").textContent=answer;
   document.getElementById("hint").textContent="Karte anklicken";
   document.getElementById("card").classList.remove("revealed");
+
+  document.getElementById("divisionTasks").innerHTML =
+    answer+" ÷ "+table+" = "+factor+"<br>"+
+    answer+" ÷ "+factor+" = "+table;
+  document.getElementById("divisionCard").classList.remove("revealed");
+  document.getElementById("divisionHint").textContent="Erst die Karte anklicken";
 }
 
 function cardClick(){
   if(!revealed){
     revealed=true;
     document.getElementById("card").classList.add("revealed");
+    document.getElementById("divisionCard").classList.add("revealed");
     document.getElementById("hint").textContent="Noch einmal klicken → nächste Aufgabe";
+    document.getElementById("divisionHint").textContent="Umkehraufgaben";
   }else{
     position++;
     if(position>=facts.length){
@@ -343,7 +482,10 @@ function cardClick(){
 
 function showDone(){
   document.getElementById("card").innerHTML=
-    '<div class="done"><h2>🎉 Geschafft!</h2><p>Du hast die '+table+'er-Reihe geübt.</p></div>';
+    '<div class="done">'+
+      '<h2>🎉 Geschafft!</h2>'+
+      '<p>Du hast die '+table+'er-Reihe geübt.</p>'+
+    '</div>';
   document.getElementById("counter").textContent="10 / 10";
 }
 
@@ -362,6 +504,7 @@ function backHome(){
   const card=document.getElementById("card");
   card.innerHTML=
     '<div id="task" class="task"></div><div id="answer" class="answer"></div><div id="hint" class="hint">Karte anklicken</div>';
+  document.getElementById("divisionCard").classList.remove("revealed");
 }
 </script>
 </body>

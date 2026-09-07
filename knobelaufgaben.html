@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finde die Fehler – Flächenformen</title>
+<title>Knobelaufgaben</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:#fbfbf8;color:#303638;display:flex;justify-content:center;align-items:center}
@@ -12,7 +12,7 @@ h1{text-align:center;font-size:34px;margin:0 0 10px}
 .subtitle{text-align:center;font-size:20px;margin:0 0 25px}
 .menu{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .menu button{height:130px;border:3px solid #dce1d8;border-radius:22px;background:#fff;font-size:42px;font-weight:800;cursor:pointer}
-.menu button:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.1)}
+.menu button span{font-size:22px;display:inline-block;margin-top:8px}.menu button:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.1)}
 .game{display:none}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .back{border:0;border-radius:12px;background:#eeeeeb;padding:10px 16px;font-size:17px;font-weight:700;cursor:pointer}
@@ -41,14 +41,24 @@ h1{text-align:center;font-size:34px;margin:0 0 10px}
 <body>
 <main class="page">
 <section id="home">
-  <h1>Finde die Fehler.</h1>
+  <h1>Knobelaufgaben</h1>
   <p class="subtitle">Wähle eine Aufgabe.</p>
   <a class="home-btn" href="https://cagdasfidande.github.io/mathe-lernzeit/" style="display:inline-block;margin-bottom:20px;">🏠 Startseite</a>
   <div class="menu">
-    <button type="button" data-level="0">1</button>
-    <button type="button" data-level="1">2</button>
-    <button type="button" data-level="2">3</button>
-    <button type="button" data-level="3">4</button>
+    <button type="button" id="flaechenOption" aria-label="Flächenreihenfolge">
+      <div style="height:55px;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true">
+          <polygon points="20,4 36,34 4,34" fill="white" stroke="#303638" stroke-width="2.5"/>
+        </svg>
+        <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true">
+          <rect x="5" y="5" width="30" height="30" fill="white" stroke="#303638" stroke-width="2.5"/>
+        </svg>
+        <svg width="46" height="38" viewBox="0 0 48 40" aria-hidden="true">
+          <rect x="3" y="7" width="42" height="26" fill="white" stroke="#303638" stroke-width="2.5"/>
+        </svg>
+      </div>
+      <span>Flächenreihenfolge</span>
+    </button>
   </div>
 </section>
 
@@ -58,6 +68,7 @@ h1{text-align:center;font-size:34px;margin:0 0 10px}
     <div class="level" id="levelTitle">Aufgabe 1</div>
     <div></div>
   </div>
+  <div id="taskNav" style="display:flex;justify-content:center;gap:8px;margin:8px 0 14px;flex-wrap:wrap;"></div>
   <p class="instruction">Finde den Fehler und ziehe die richtige Flächenform darauf.</p>
   <div class="rows" id="rows"></div>
   <div class="palette">
@@ -159,13 +170,27 @@ function render(){
  renderPalette();
 }
 
-function openLevel(n){
- current=n; data=clone(original); selectedType=null; message.textContent="";
- levelTitle.textContent="Aufgabe "+(n+1);
- home.style.display="none"; game.style.display="block"; render();
+function renderTaskNav(){
+  const nav=document.getElementById("taskNav");
+  nav.innerHTML="";
+  for(let i=0;i<original.length;i++){
+    const b=document.createElement("button");
+    b.type="button";
+    b.textContent="Aufgabe "+(i+1);
+    b.style.cssText="border:0;border-radius:10px;background:#eeeeeb;padding:8px 13px;font-size:15px;font-weight:700;cursor:pointer;";
+    if(i===current)b.style.background="#d9ebf7";
+    b.onclick=()=>openLevel(i);
+    nav.appendChild(b);
+  }
 }
 
-document.querySelectorAll(".menu button").forEach(b=>b.addEventListener("click",()=>openLevel(+b.dataset.level)));
+function openLevel(n){
+ current=n; data=clone(original); selectedType=null; message.textContent="";
+ levelTitle.textContent="Flächenreihenfolge – Aufgabe "+(n+1);
+ home.style.display="none"; game.style.display="block"; renderTaskNav(); render();
+}
+
+document.getElementById("flaechenOption").addEventListener("click",()=>openLevel(0));
 
 document.getElementById("back").onclick=()=>{
  game.style.display="none";home.style.display="block";

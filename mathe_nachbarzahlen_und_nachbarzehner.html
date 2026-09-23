@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nachbarzahlen und Nachbarzehner</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f7f9fc;color:#243447}
+.app{max-width:1000px;margin:auto;padding:22px 20px 28px}.home{text-align:center}
+h1{font-size:32px;margin:5px 0 7px}.lead{color:#65758b;margin:0 0 28px}
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:780px;margin:auto}
+.choice{border:0;border-radius:22px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:35px 20px;cursor:pointer;text-align:center;color:#243447;min-height:190px}
+.choice:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(0,0,0,.11)}
+.icon{font-size:48px;margin-bottom:12px}.choice h2{margin:0 0 8px;font-size:24px}.choice p{margin:0;color:#65758b;font-size:15px}
+.activity{display:none}.activity.active{display:block}
+.activity-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.back{border:1px solid #d7e0e8;background:#fff;border-radius:10px;padding:8px 13px;font-weight:bold;cursor:pointer}
+.activity-title{font-size:25px;font-weight:bold;flex:1;text-align:center}
+.topbar{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.timer{font-size:20px;font-weight:bold;padding:7px 13px;border-radius:10px;background:#eef3f7;min-width:82px;text-align:center}.timer.warning{background:#fde3e3;color:#a52f2f}
+.timer-btn,.timer-select{border:1px solid #d7e0e8;background:#fff;border-radius:9px;padding:7px 10px;font-weight:bold;font-size:14px;cursor:pointer}
+.card{background:#fff;border-radius:18px;padding:17px 20px;margin-bottom:12px;box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.ruler-title{text-align:center;font-weight:bold;font-size:18px;margin-bottom:10px}.ruler-wrap{display:flex;align-items:center;gap:10px}.arrow{width:44px;height:44px;border:0;border-radius:50%;background:#e9eef5;font-size:24px;cursor:pointer;flex-shrink:0}.arrow:disabled{opacity:.35}
+.ruler{position:relative;flex:1;height:90px;min-width:0}.ruler-line{position:absolute;left:0;right:0;top:46px;height:4px;background:#34495e;border-radius:4px}.ticks{position:absolute;inset:0;display:flex;justify-content:space-between}.tick-container{position:relative;width:1px;height:100%;display:flex;justify-content:center}.tick{position:absolute;top:38px;width:2px;height:19px;background:#718291}.tick.major{top:32px;width:3px;height:29px;background:#34495e}.number{position:absolute;top:66px;font-size:12px;color:#718291;transform:translateX(-50%);white-space:nowrap}.number.major{top:63px;font-size:17px;font-weight:bold;color:#243447}.ruler-range{text-align:center;color:#65758b;font-size:13px}
+.instruction{text-align:center;color:#65758b;margin-bottom:6px;font-size:14px}.question{text-align:center;font-size:25px;font-weight:bold;margin:5px 0 17px}.blanks{display:flex;justify-content:center;align-items:center;gap:11px;font-size:22px;font-weight:bold;margin-bottom:18px}.blank{width:105px;height:51px;border:3px dashed #aebdca;border-radius:12px;background:#fafcfd;display:flex;align-items:center;justify-content:center;color:#65758b}.blank.over{border-color:#355c7d;background:#edf3f8}.blank.filled{border-style:solid;border-color:#7d93a5;color:#243447;background:#fff}.options-title{text-align:center;font-weight:bold;margin-bottom:8px;font-size:14px}.options{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}.tile{min-width:55px;height:40px;padding:5px 9px;border:2px solid #d7e0e8;border-radius:10px;background:#fff;font-size:16px;font-weight:bold;cursor:grab;touch-action:none;user-select:none}.tile.used{opacity:.3}.feedback{text-align:center;min-height:27px;margin-top:10px;font-size:17px;font-weight:bold}.next,.reset,.check{display:block;margin:6px auto 0;border-radius:10px;padding:9px 18px;font-size:15px;font-weight:bold;cursor:pointer}.next,.check{border:0;background:#34495e;color:#fff}.next{display:none}.reset{display:none;border:1px solid #d7e0e8;background:#fff}
+.sentence{display:flex;justify-content:center;align-items:center;gap:11px;font-size:23px;font-weight:bold;margin-bottom:16px;flex-wrap:wrap}.input-box{width:105px;height:51px;border:3px solid #c8d3dd;border-radius:12px;background:#fff;text-align:center;font-size:23px;font-weight:bold;color:#243447;outline:none}.input-box:focus{border-color:#355c7d;box-shadow:0 0 0 3px #edf3f8}.input-box.correct{border-color:#55a96b;background:#dff3e5}.input-box.wrong{border-color:#dc6b6b;background:#fde3e3}.center-number{font-size:27px;font-weight:800;min-width:65px}.hint{text-align:center;color:#65758b;font-size:12px;margin-top:7px}
+@media(max-width:650px){.app{padding:12px 10px 16px}h1{font-size:25px}.choices{grid-template-columns:1fr;gap:12px}.choice{min-height:135px;padding:22px 15px}.icon{font-size:38px;margin-bottom:5px}.choice h2{font-size:21px}.activity-title{font-size:21px}.activity-header{justify-content:center}.back{order:2}.ruler-title{font-size:16px}.card{padding:13px 10px;margin-bottom:8px}.ruler-wrap{gap:5px}.arrow{width:39px;height:39px;font-size:20px}.ruler{height:78px}.ruler-line{top:40px}.tick{top:34px;height:15px}.tick.major{top:30px;height:23px}.number{top:54px;font-size:9px}.number.major{top:52px;font-size:14px}.question{font-size:21px}.blank{width:88px;height:46px}.tile{min-width:47px;height:36px;font-size:14px}.sentence{font-size:20px}.input-box{width:85px;height:46px;font-size:20px}.center-number{font-size:24px;min-width:52px}}
+</style>
+
+<style>
+.home-site-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin:0 auto 18px;
+    padding:10px 18px;
+    border-radius:12px;
+    background:#f3f4f6;
+    color:#374151;
+    text-decoration:none;
+    font-weight:700;
+    border:2px solid #d1d5db;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+    transition:transform .15s ease, background .15s ease;
+}
+.home-site-btn:hover{
+    background:#e5e7eb;
+    transform:translateY(-1px);
+}
+</style>
+
+</head>
+<body>
+<div style="text-align:center;">
+  <a class="home-site-btn" href="https://cagdasfidande.github.io/mathe-lernzeit/" title="Zur Mathe-Lernzeit-Startseite">
+    🏠 Mathe-Lernzeit
+  </a>
+</div>
+
+<div class="app">
+<section class="home" id="home">
+<h1>🔢 Mathe-Lernzeit</h1>
+<p class="lead">Wähle deine Aufgabe.</p>
+<div class="choices">
+<button class="choice" id="openZehner" type="button"><div class="icon">🔟</div><h2>Nachbarzehner</h2><p>Finde die beiden Zehnerzahlen.</p></button>
+<button class="choice" id="openZahlen" type="button"><div class="icon">🔢</div><h2>Nachbarzahlen</h2><p>Finde Vorgänger und Nachfolger.</p></button>
+</div>
+</section>
+
+<section class="activity" id="zehner">
+<div class="activity-header"><button class="back" type="button">← Auswahl</button><div class="activity-title">🔟 Nachbarzehner</div><div style="width:78px"></div></div>
+<div class="topbar"><div class="timer" id="ztimer">05:00</div><select class="timer-select" id="zduration"><option value="1">1 Min.</option><option value="3">3 Min.</option><option value="5" selected>5 Min.</option><option value="10">10 Min.</option><option value="15">15 Min.</option><option value="20">20 Min.</option></select><button class="timer-btn" id="zstart" type="button">Start</button><button class="timer-btn" id="zreset" type="button">↻</button></div>
+<div class="card"><div class="ruler-title">Zahlenstrahl</div><div class="ruler-wrap"><button class="arrow" id="zprev" type="button">◀</button><div class="ruler"><div class="ruler-line"></div><div class="ticks" id="zticks"></div></div><button class="arrow" id="znext" type="button">▶</button></div><div class="ruler-range" id="zrange">0 bis 10</div></div>
+<div class="card"><div class="instruction">Ziehe die passenden Zehnerzahlen in die beiden Lücken.</div><div class="question" id="zquestion">45 liegt zwischen:</div><div class="blanks"><div class="blank">?</div><span>und</span><div class="blank">?</div></div><div class="options-title">Zehnerzahlen</div><div class="options" id="zoptions"></div><div class="feedback" id="zfeedback"></div><button class="next" id="znextTask" type="button">Nächste Aufgabe →</button><button class="reset" id="zresetTask" type="button">Antwort zurücksetzen</button></div>
+</section>
+
+<section class="activity" id="zahlen">
+<div class="activity-header"><button class="back" type="button">← Auswahl</button><div class="activity-title">🔢 Nachbarzahlen</div><div style="width:78px"></div></div>
+<div class="topbar"><div class="timer" id="ntimer">05:00</div><select class="timer-select" id="nduration"><option value="1">1 Min.</option><option value="3">3 Min.</option><option value="5" selected>5 Min.</option><option value="10">10 Min.</option><option value="15">15 Min.</option><option value="20">20 Min.</option></select><button class="timer-btn" id="nstart" type="button">Start</button><button class="timer-btn" id="nreset" type="button">↻</button></div>
+<div class="card"><div class="ruler-title">Zahlenstrahl</div><div class="ruler-wrap"><button class="arrow" id="nprev" type="button">◀</button><div class="ruler"><div class="ruler-line"></div><div class="ticks" id="nticks"></div></div><button class="arrow" id="nnext" type="button">▶</button></div><div class="ruler-range" id="nrange">0 bis 10</div></div>
+<div class="card"><div class="instruction">Welche Zahl steht davor? Welche Zahl steht danach?</div><div class="question">Finde Vorgänger und Nachfolger.</div><div class="sentence"><input class="input-box" id="nbefore" type="number" inputmode="numeric"><span>&lt;</span><span class="center-number" id="ntarget">45</span><span>&lt;</span><input class="input-box" id="nafter" type="number" inputmode="numeric"></div><button class="check" id="ncheck" type="button">Überprüfen ✓</button><button class="next" id="nnextTask" type="button">Nächste Aufgabe →</button><div class="feedback" id="nfeedback"></div><div class="hint">Tipp: Schreibe die beiden Zahlen mit der Tastatur.</div></div>
+</section>
+</div>
+<script>
+const home=document.getElementById("home"),zehner=document.getElementById("zehner"),zahlen=document.getElementById("zahlen");
+function show(section){home.style.display=section?"none":"block";zehner.classList.toggle("active",section==="z");zahlen.classList.toggle("active",section==="n");}
+document.getElementById("openZehner").onclick=()=>show("z");document.getElementById("openZahlen").onclick=()=>show("n");document.querySelectorAll(".back").forEach(b=>b.onclick=()=>show(null));
+
+function ruler(ticksEl,rangeEl,prevEl,nextEl){let start=0;function draw(){ticksEl.innerHTML="";for(let i=0;i<=10;i++){let n=start+i,box=document.createElement("div");box.className="tick-container";let t=document.createElement("div");t.className="tick"+(n%10===0?" major":"");let l=document.createElement("div");l.className="number"+(n%10===0?" major":"");l.textContent=n;box.append(t,l);ticksEl.appendChild(box)}rangeEl.textContent=start+" bis "+(start+10);prevEl.disabled=start===0;nextEl.disabled=start===90}prevEl.onclick=()=>{if(start>0){start-=10;draw()}};nextEl.onclick=()=>{if(start<90){start+=10;draw()}};draw()}
+ruler(document.getElementById("zticks"),document.getElementById("zrange"),document.getElementById("zprev"),document.getElementById("znext"));
+ruler(document.getElementById("nticks"),document.getElementById("nrange"),document.getElementById("nprev"),document.getElementById("nnext"));
+
+function timerSetup(timer,duration,start,reset){let sec=300,id=null,running=false;function show(){timer.textContent=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");timer.classList.toggle("warning",sec<=30)}function resetClock(){clearInterval(id);running=false;sec=Number(duration.value)*60;start.textContent="Start";show()}start.onclick=()=>{if(running){clearInterval(id);running=false;start.textContent="Weiter";return}if(sec<=0)sec=Number(duration.value)*60;running=true;start.textContent="Pause";show();id=setInterval(()=>{sec--;show();if(sec<=0){clearInterval(id);running=false;start.textContent="Start"}},1000)};reset.onclick=resetClock;duration.onchange=resetClock;resetClock()}
+timerSetup(document.getElementById("ztimer"),document.getElementById("zduration"),document.getElementById("zstart"),document.getElementById("zreset"));
+timerSetup(document.getElementById("ntimer"),document.getElementById("nduration"),document.getElementById("nstart"),document.getElementById("nreset"));
+
+// Nachbarzehner
+let zn=45,zlow=40,zhigh=50,zdrag=null;const zq=document.getElementById("zquestion"),zopt=document.getElementById("zoptions"),zfb=document.getElementById("zfeedback"),znext=document.getElementById("znextTask"),zresetTask=document.getElementById("zresetTask"),zblanks=document.querySelectorAll("#zehner .blank");
+function znew(){do{zn=Math.floor(Math.random()*89)+11}while(zn%10===0);zlow=Math.floor(zn/10)*10;zhigh=zlow+10;zq.textContent=zn+" liegt zwischen:";zblanks.forEach(b=>{b.textContent="?";b.classList.remove("filled","over");delete b.dataset.value});zfb.textContent="";znext.style.display="none";zresetTask.style.display="none";zopt.innerHTML="";for(let n=10;n<=100;n+=10){let t=document.createElement("button");t.type="button";t.className="tile";t.textContent=n;t.dataset.value=n;t.onpointerdown=e=>{if(t.classList.contains("used"))return;zdrag=t;t.setPointerCapture?.(e.pointerId);document.addEventListener("pointermove",zmove);document.addEventListener("pointerup",zend,{once:true})};t.onclick=()=>{if(!t.classList.contains("used")){let b=[...zblanks].find(x=>!x.dataset.value);if(b)zplace(t,b)}};zopt.appendChild(t)}}
+function zmove(e){if(!zdrag)return;let el=document.elementFromPoint(e.clientX,e.clientY);zblanks.forEach(b=>b.classList.toggle("over",!!el&&b.contains(el)&&!b.dataset.value))}
+function zend(e){if(!zdrag)return;let el=document.elementFromPoint(e.clientX,e.clientY),b=[...zblanks].find(x=>x.contains(el)&&!x.dataset.value);zblanks.forEach(x=>x.classList.remove("over"));if(b)zplace(zdrag,b);zdrag=null;document.removeEventListener("pointermove",zmove)}
+function zplace(t,b){b.textContent=t.dataset.value;b.dataset.value=t.dataset.value;b.classList.add("filled");t.classList.add("used");zcheck()}
+function zcheck(){let v=[...zblanks].map(b=>b.dataset.value?Number(b.dataset.value):null);if(v.includes(null))return;if(v[0]===zlow&&v[1]===zhigh){zfb.textContent="🎉 Richtig!";zfb.style.color="#23713a";znext.style.display="block"}else{zfb.textContent="Schau noch einmal auf den Zahlenstrahl.";zfb.style.color="#a52f2f";zresetTask.style.display="block"}}
+zresetTask.onclick=()=>{zblanks.forEach(b=>{b.textContent="?";delete b.dataset.value;b.classList.remove("filled")});zopt.querySelectorAll(".tile").forEach(t=>t.classList.remove("used"));zfb.textContent="";zresetTask.style.display="none"};znext.onclick=znew;znew();
+
+// Nachbarzahlen
+let nn=45;const nq=document.getElementById("ntarget"),nb=document.getElementById("nbefore"),na=document.getElementById("nafter"),nc=document.getElementById("ncheck"),nnxt=document.getElementById("nnextTask"),nfb=document.getElementById("nfeedback");
+function nnew(){nn=Math.floor(Math.random()*99)+1;nq.textContent=nn;nb.value="";na.value="";nb.className="input-box";na.className="input-box";nfb.textContent="";nc.style.display="block";nnxt.style.display="none";nb.focus()}
+function ncheck(){let b=Number(nb.value),a=Number(na.value),bo=b===nn-1,ao=a===nn+1;nb.classList.toggle("correct",bo);nb.classList.toggle("wrong",nb.value!==""&&!bo);na.classList.toggle("correct",ao);na.classList.toggle("wrong",na.value!==""&&!ao);if(bo&&ao){nfb.textContent="🎉 Richtig!";nfb.style.color="#23713a";nc.style.display="none";nnxt.style.display="block"}else{nfb.textContent="Noch einmal prüfen. Nutze den Zahlenstrahl als Hilfe.";nfb.style.color="#a52f2f"}}
+nc.onclick=ncheck;[nb,na].forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")ncheck()}));nnxt.onclick=nnew;nnew();
+</script>
+</body></html>

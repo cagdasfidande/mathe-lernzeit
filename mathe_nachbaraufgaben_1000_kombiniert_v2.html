@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nachbarzahlen und Nachbarzehner</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f7f9fc;color:#243447}
+.app{max-width:1000px;margin:auto;padding:22px 20px 28px}.home{text-align:center}
+h1{font-size:32px;margin:5px 0 7px}.lead{color:#65758b;margin:0 0 28px}
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:780px;margin:auto}
+.choice{border:0;border-radius:22px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:35px 20px;cursor:pointer;text-align:center;color:#243447;min-height:190px}
+.choice:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(0,0,0,.11)}
+.icon{font-size:48px;margin-bottom:12px}.choice h2{margin:0 0 8px;font-size:24px}.choice p{margin:0;color:#65758b;font-size:15px}
+.activity{display:none}.activity.active{display:block}
+.activity-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.back{border:1px solid #d7e0e8;background:#fff;border-radius:10px;padding:8px 13px;font-weight:bold;cursor:pointer}
+.activity-title{font-size:25px;font-weight:bold;flex:1;text-align:center}
+.topbar{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.timer{font-size:20px;font-weight:bold;padding:7px 13px;border-radius:10px;background:#eef3f7;min-width:82px;text-align:center}.timer.warning{background:#fde3e3;color:#a52f2f}
+.timer-btn,.timer-select{border:1px solid #d7e0e8;background:#fff;border-radius:9px;padding:7px 10px;font-weight:bold;font-size:14px;cursor:pointer}
+.card{background:#fff;border-radius:18px;padding:17px 20px;margin-bottom:12px;box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.ruler-title{text-align:center;font-weight:bold;font-size:18px;margin-bottom:10px}.ruler-wrap{display:flex;align-items:center;gap:10px}.arrow{width:44px;height:44px;border:0;border-radius:50%;background:#e9eef5;font-size:24px;cursor:pointer;flex-shrink:0}.arrow:disabled{opacity:.35}
+.ruler{position:relative;flex:1;height:90px;min-width:0}.ruler-line{position:absolute;left:0;right:0;top:46px;height:4px;background:#34495e;border-radius:4px}.ticks{position:absolute;inset:0;display:flex;justify-content:space-between}.tick-container{position:relative;width:1px;height:100%;display:flex;justify-content:center}.tick{position:absolute;top:38px;width:2px;height:19px;background:#718291}.tick.major{top:32px;width:3px;height:29px;background:#34495e}.number{position:absolute;top:66px;font-size:12px;color:#718291;transform:translateX(-50%);white-space:nowrap}.number.major{top:63px;font-size:17px;font-weight:bold;color:#243447}.ruler-range{text-align:center;color:#65758b;font-size:13px}
+.instruction{text-align:center;color:#65758b;margin-bottom:6px;font-size:14px}.question{text-align:center;font-size:25px;font-weight:bold;margin:5px 0 17px}.blanks{display:flex;justify-content:center;align-items:center;gap:11px;font-size:22px;font-weight:bold;margin-bottom:18px}.blank{width:105px;height:51px;border:3px dashed #aebdca;border-radius:12px;background:#fafcfd;display:flex;align-items:center;justify-content:center;color:#65758b}.blank.over{border-color:#355c7d;background:#edf3f8}.blank.filled{border-style:solid;border-color:#7d93a5;color:#243447;background:#fff}.options-title{text-align:center;font-weight:bold;margin-bottom:8px;font-size:14px}.options{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}.tile{min-width:55px;height:40px;padding:5px 9px;border:2px solid #d7e0e8;border-radius:10px;background:#fff;font-size:16px;font-weight:bold;cursor:grab;touch-action:none;user-select:none}.tile.used{opacity:.3}.feedback{text-align:center;min-height:27px;margin-top:10px;font-size:17px;font-weight:bold}.next,.reset,.check{display:block;margin:6px auto 0;border-radius:10px;padding:9px 18px;font-size:15px;font-weight:bold;cursor:pointer}.next,.check{border:0;background:#34495e;color:#fff}.next{display:none}.reset{display:none;border:1px solid #d7e0e8;background:#fff}
+.sentence{display:flex;justify-content:center;align-items:center;gap:11px;font-size:23px;font-weight:bold;margin-bottom:16px;flex-wrap:wrap}.input-box{width:105px;height:51px;border:3px solid #c8d3dd;border-radius:12px;background:#fff;text-align:center;font-size:23px;font-weight:bold;color:#243447;outline:none}.input-box:focus{border-color:#355c7d;box-shadow:0 0 0 3px #edf3f8}.input-box.correct{border-color:#55a96b;background:#dff3e5}.input-box.wrong{border-color:#dc6b6b;background:#fde3e3}.center-number{font-size:27px;font-weight:800;min-width:65px}.hint{text-align:center;color:#65758b;font-size:12px;margin-top:7px}
+@media(max-width:650px){.app{padding:12px 10px 16px}h1{font-size:25px}.choices{grid-template-columns:1fr;gap:12px}.choice{min-height:135px;padding:22px 15px}.icon{font-size:38px;margin-bottom:5px}.choice h2{font-size:21px}.activity-title{font-size:21px}.activity-header{justify-content:center}.back{order:2}.ruler-title{font-size:16px}.card{padding:13px 10px;margin-bottom:8px}.ruler-wrap{gap:5px}.arrow{width:39px;height:39px;font-size:20px}.ruler{height:78px}.ruler-line{top:40px}.tick{top:34px;height:15px}.tick.major{top:30px;height:23px}.number{top:54px;font-size:9px}.number.major{top:52px;font-size:14px}.question{font-size:21px}.blank{width:88px;height:46px}.tile{min-width:47px;height:36px;font-size:14px}.sentence{font-size:20px}.input-box{width:85px;height:46px;font-size:20px}.center-number{font-size:24px;min-width:52px}}
+</style>
+
+<style>
+.home-site-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin:0 auto 18px;
+    padding:10px 18px;
+    border-radius:12px;
+    background:#f3f4f6;
+    color:#374151;
+    text-decoration:none;
+    font-weight:700;
+    border:2px solid #d1d5db;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+    transition:transform .15s ease, background .15s ease;
+}
+.home-site-btn:hover{
+    background:#e5e7eb;
+    transform:translateY(-1px);
+}
+</style>
+
+</head>
+
+<body>
+<div style="text-align:center;">
+  <a class="home-site-btn" href="https://cagdasfidande.github.io/mathe-lernzeit/" title="Zur Mathe-Lernzeit-Startseite">
+    🏠 Mathe-Lernzeit
+  </a>
+</div>
+
+<div class="app">
+<section class="home" id="home">
+  <h1>🔢 Zahlenraum 1000</h1>
+  <p class="lead">Finde die Nachbarzahlen, Nachbarzehner und Nachbarhunderter.</p>
+
+  <div class="choices" style="display:block;max-width:900px">
+    <button class="choice" id="openCombined" type="button" style="width:100%;min-height:170px">
+      <div class="icon">🔢</div>
+      <h2>Nachbaraufgaben</h2>
+      <p>Vorgänger · Nachfolger · Nachbarzehner · Nachbarhunderter</p>
+    </button>
+  </div>
+</section>
+
+<section class="activity" id="combined">
+  <div class="activity-header">
+    <button class="back" type="button">← Auswahl</button>
+    <div class="activity-title">🔢 Nachbaraufgaben</div>
+    <div style="width:78px"></div>
+  </div>
+
+  <div class="topbar">
+    <div class="timer" id="timer">05:00</div>
+    <select class="timer-select" id="duration">
+      <option value="1">1 Min.</option>
+      <option value="3">3 Min.</option>
+      <option value="5" selected>5 Min.</option>
+      <option value="10">10 Min.</option>
+      <option value="15">15 Min.</option>
+      <option value="20">20 Min.</option>
+    </select>
+    <button class="timer-btn" id="start" type="button">Start</button>
+    <button class="timer-btn" id="resetClock" type="button">↻</button>
+  </div>
+
+  <!-- One ruler for the whole activity -->
+  <div class="card">
+    <div class="ruler-title">Zahlenstrahl</div>
+    <div class="ruler-wrap">
+      <button class="arrow" id="prev" type="button">◀</button>
+      <div class="ruler">
+        <div class="ruler-line"></div>
+        <div class="ticks" id="ticks"></div>
+      </div>
+      <button class="arrow" id="next" type="button">▶</button>
+    </div>
+    <div class="ruler-range" id="range">0 bis 100</div>
+  </div>
+
+  <div class="card combined-card">
+    <div class="instruction">Fülle alle sechs Felder aus.</div>
+
+    <div class="table-wrap">
+<table class="task-table">
+  <thead>
+    <tr>
+      <th>Nachbarhunderter</th>
+      <th>Nachbarzehner</th>
+      <th>Vorgänger</th>
+      <th class="zahl-head">Zahl</th>
+      <th>Nachfolger</th>
+      <th>Nachbarzehner</th>
+      <th>Nachbarhunderter</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><input class="answer" id="hLeft" type="number" inputmode="numeric" aria-label="Nachbarhunderter links"></td>
+      <td><input class="answer" id="zLeft" type="number" inputmode="numeric" aria-label="Nachbarzehner links"></td>
+      <td><input class="answer" id="before" type="number" inputmode="numeric" aria-label="Vorgänger"></td>
+      <td class="target-cell"><div class="center-number-box" id="target">456</div></td>
+      <td><input class="answer" id="after" type="number" inputmode="numeric" aria-label="Nachfolger"></td>
+      <td><input class="answer" id="zRight" type="number" inputmode="numeric" aria-label="Nachbarzehner rechts"></td>
+      <td><input class="answer" id="hRight" type="number" inputmode="numeric" aria-label="Nachbarhunderter rechts"></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+    <button class="check" id="check" type="button">Überprüfen ✓</button>
+    <button class="next" id="nextTask" type="button">Nächste Aufgabe →</button>
+    <button class="reset" id="resetTask" type="button">Antwort zurücksetzen</button>
+    <div class="feedback" id="feedback"></div>
+    <div class="hint">Tipp: Nutze den Zahlenstrahl als Hilfe.</div>
+  </div>
+</section>
+</div>
+
+<style>
+.combined-card{overflow:visible}
+.table-wrap{width:100%;overflow:visible}
+.task-table{
+  width:100%;
+  table-layout:fixed;
+  border-collapse:collapse;
+  margin:8px auto 18px;
+  border:1px solid #b9c5cf;
+}
+.task-table th,.task-table td{
+  border:1px solid #b9c5cf;
+  padding:0;
+  text-align:center;
+}
+.task-table th{
+  height:48px;
+  padding:5px 3px;
+  background:#f7f9fc;
+  font-size:13px;
+  line-height:1.15;
+  font-weight:bold;
+  vertical-align:middle;
+}
+.task-table th.zahl-head{
+  font-size:28px;
+  font-weight:500;
+  background:#fff;
+}
+.task-table td{
+  height:72px;
+  background:#fff;
+}
+.answer{
+  display:block;
+  width:100%;
+  height:70px;
+  border:0;
+  border-radius:0;
+  background:#fff;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  color:#243447;
+  outline:none;
+}
+.answer:focus{
+  background:#edf3f8;
+  box-shadow:inset 0 0 0 3px #355c7d;
+}
+.answer.correct{background:#dff3e5;box-shadow:inset 0 0 0 3px #55a96b}
+.answer.wrong{background:#fde3e3;box-shadow:inset 0 0 0 3px #dc6b6b}
+.target-cell{background:#fff!important}
+.center-number-box{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:70px;
+  font-size:28px;
+  font-weight:800;
+  background:#fff;
+}
+@media(max-width:700px){
+  .task-table th{font-size:11px;height:52px}
+  .task-table th.zahl-head{font-size:23px}
+  .task-table td{height:62px}
+  .answer{height:60px;font-size:18px}
+  .center-number-box{height:60px;font-size:23px}
+}
+</style>
+
+<script>
+const home=document.getElementById("home");
+const combined=document.getElementById("combined");
+const openCombined=document.getElementById("openCombined");
+
+function showActivity(active){
+  home.style.display=active?"none":"block";
+  combined.classList.toggle("active",active);
+}
+openCombined.onclick=()=>showActivity(true);
+document.querySelector(".back").onclick=()=>showActivity(false);
+
+const timer=document.getElementById("timer");
+const duration=document.getElementById("duration");
+const startBtn=document.getElementById("start");
+const resetClock=document.getElementById("resetClock");
+let seconds=300, timerId=null, running=false;
+
+function showTime(){
+  timer.textContent=String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0");
+  timer.classList.toggle("warning",seconds<=30);
+}
+function resetTimer(){
+  clearInterval(timerId); running=false;
+  seconds=Number(duration.value)*60;
+  startBtn.textContent="Start"; showTime();
+}
+startBtn.onclick=()=>{
+  if(running){clearInterval(timerId);running=false;startBtn.textContent="Weiter";return}
+  if(seconds<=0) seconds=Number(duration.value)*60;
+  running=true;startBtn.textContent="Pause";showTime();
+  timerId=setInterval(()=>{
+    seconds--;showTime();
+    if(seconds<=0){clearInterval(timerId);running=false;startBtn.textContent="Start"}
+  },1000);
+};
+resetClock.onclick=resetTimer;
+duration.onchange=resetTimer;
+resetTimer();
+
+/* Zahlenstrahl: immer nur der Hunderterbereich der aktuellen Zahl */
+const ticks=document.getElementById("ticks");
+const range=document.getElementById("range");
+const prev=document.getElementById("prev");
+const next=document.getElementById("next");
+
+function drawRulerForNumber(n){
+  const start=Math.floor(n/100)*100;
+  ticks.innerHTML="";
+  for(let i=0;i<=10;i++){
+    const value=start+i*10;
+    const box=document.createElement("div");
+    box.className="tick-container";
+    const tick=document.createElement("div");
+    tick.className="tick"+(i===0||i===10?" major":"");
+    const label=document.createElement("div");
+    label.className="number"+(i===0||i===10?" major":"");
+    label.textContent=value;
+    box.append(tick,label);
+    ticks.appendChild(box);
+  }
+  range.textContent=start+" bis "+(start+100);
+  prev.disabled=true;
+  next.disabled=true;
+}
+
+/* Combined task */
+const target=document.getElementById("target");
+const fields=[
+  document.getElementById("hLeft"),
+  document.getElementById("zLeft"),
+  document.getElementById("before"),
+  document.getElementById("after"),
+  document.getElementById("zRight"),
+  document.getElementById("hRight")
+];
+const checkBtn=document.getElementById("check");
+const nextBtn=document.getElementById("nextTask");
+const resetTask=document.getElementById("resetTask");
+const feedback=document.getElementById("feedback");
+
+let number=456;
+
+function newTask(){
+  const hundred=Math.floor(Math.random()*8)+1; // 1–8 Hunderter, damit alle Bereiche gemischt vorkommen
+  const rest=Math.floor(Math.random()*99)+1;   // 1–99
+  number=hundred*100+rest;                     // 101–899
+  target.textContent=number;
+  drawRulerForNumber(number);
+  fields.forEach(f=>{f.value="";f.className="answer"});
+  feedback.textContent="";
+  checkBtn.style.display="block";
+  nextBtn.style.display="none";
+  resetTask.style.display="none";
+}
+
+function check(){
+  const answers=[
+    Math.floor(number/100)*100,
+    Math.floor(number/10)*10,
+    number-1,
+    number+1,
+    Math.floor(number/10)*10+10,
+    Math.floor(number/100)*100+100
+  ];
+  let all=true;
+  fields.forEach((f,i)=>{
+    const correct=Number(f.value)===answers[i];
+    f.classList.toggle("correct",correct);
+    f.classList.toggle("wrong",f.value!==""&&!correct);
+    if(!correct) all=false;
+  });
+  if(all){
+    feedback.textContent="🎉 Richtig!";
+    feedback.style.color="#23713a";
+    checkBtn.style.display="none";
+    nextBtn.style.display="block";
+  }else{
+    feedback.textContent="Noch einmal prüfen. Nutze den Zahlenstrahl als Hilfe.";
+    feedback.style.color="#a52f2f";
+    resetTask.style.display="block";
+  }
+}
+checkBtn.onclick=check;
+fields.forEach(f=>f.addEventListener("keydown",e=>{if(e.key==="Enter")check()}));
+nextBtn.onclick=newTask;
+resetTask.onclick=()=>{
+  fields.forEach(f=>{f.value="";f.className="answer"});
+  feedback.textContent="";
+  resetTask.style.display="none";
+};
+newTask();
+</script>
+</body></html>
